@@ -1,0 +1,33 @@
+{% extends 'admin/base.html' %}
+{% block title %}管理员登录{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-12">
+    <div class="max-w-md mx-auto bg-white rounded-2xl shadow-sm border p-6">
+        <h2 class="text-2xl font-bold text-gray-800">管理员登录</h2>
+        <p class="text-sm text-gray-500 mt-2">仅限管理员账号访问配置后台</p>
+
+        {% if error %}
+        <div class="mt-4 bg-red-50 border border-red-100 text-red-700 text-sm px-4 py-3 rounded-xl">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="post" class="mt-6 space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="block text-sm font-medium text-gray-700">用户名</label>
+                <input name="username" value="{{ form.username.value|default:'' }}" required class="mt-1 w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200" />
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">密码</label>
+                <input type="password" name="password" required class="mt-1 w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200" />
+            </div>
+
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-xl font-bold transition shadow text-white">
+                登录
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

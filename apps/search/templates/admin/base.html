@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crawl-Res Admin | {% block title %}{% endblock %}</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+    <link rel="apple-touch-icon" href="{% static 'images/logo.png' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 font-sans">
+    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <a href="{% url 'admin_nodes' %}" class="flex items-center space-x-2">
+                    <img src="{% static 'images/logo.png' %}" alt="Crawl-Res Logo" class="h-8 w-8 object-contain">
+                    <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">Crawl-Res Admin</span>
+                </a>
+            </div>
+            <div class="flex items-center gap-3 text-sm font-medium text-gray-600">
+                <a href="{% url 'admin_nodes' %}" class="hover:text-blue-600 transition">站点配置</a>
+                <a href="{% url 'admin_email_rules' %}" class="hover:text-blue-600 transition">邮箱管理</a>
+                <a href="{% url 'admin_system_configs' %}" class="hover:text-blue-600 transition">系统配置</a>
+                {% if request.user.is_authenticated %}
+                    <a href="{% url 'admin_logout' %}" class="bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-full text-sm font-bold border">退出</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    {% block content %}{% endblock %}
+
+    <footer class="bg-white border-t border-gray-200 mt-20 pt-10 pb-8 text-sm text-gray-500 text-center">
+        <p>&copy; 2025 Crawl-Res Admin</p>
+    </footer>
+</body>
+</html>

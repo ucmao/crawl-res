@@ -1,0 +1,46 @@
+# Django
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+db.sqlite3
+*.sqlite3
+/media/
+# 注意：static/ 目录下的源文件（logo, favicon等）应该被提交
+# 只忽略 collectstatic 收集后的文件
+/staticfiles/
+/static_root/
+.env
+
+# Scrapy
+scrapy.cfg
+*.log
+*.jsonl
+*.csv
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# Logs
+logs/
+*.log
+pip-log.txt
+
+# Other
+.env
+.env.local
+.env.*.local

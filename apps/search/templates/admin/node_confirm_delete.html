@@ -1,0 +1,17 @@
+{% extends 'admin/base.html' %}
+{% block title %}删除配置{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-12">
+    <div class="max-w-md mx-auto bg-white rounded-2xl shadow-sm border p-6">
+        <h2 class="text-2xl font-bold text-gray-800">确认删除</h2>
+        <p class="text-sm text-gray-600 mt-3">确定要删除配置 <span class="font-mono">{{ site.key }}</span> 吗？此操作不可恢复。</p>
+
+        <form method="post" class="mt-6 flex gap-3">
+            {% csrf_token %}
+            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-bold">删除</button>
+            <a href="{% url 'admin_nodes' %}" class="bg-white hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-xl font-bold border">取消</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

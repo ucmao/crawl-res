@@ -1,0 +1,106 @@
+{% extends 'admin/base.html' %}
+{% block title %}站点配置{% endblock %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div class="max-w-7xl mx-auto px-4 py-12">
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800">站点配置（SiteConfig）</h2>
+            <p class="text-sm text-gray-500 mt-1">增删改查、启用/禁用、单个测试（基于 host）</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'admin_node_new' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-bold shadow">新增配置</a>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 text-gray-600">
+                    <tr>
+                        <th class="text-left px-6 py-4">Key</th>
+                        <th class="text-left px-6 py-4">名称</th>
+                        <th class="text-left px-6 py-4">Host</th>
+                        <th class="text-left px-6 py-4">状态</th>
+                        <th class="text-left px-6 py-4">更新时间</th>
+                        <th class="text-right px-6 py-4">操作</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y">
+                    {% for s in sites %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 font-mono text-gray-700">{{ s.key }}</td>
+                        <td class="px-6 py-4 font-medium text-gray-900">{{ s.name }}</td>
+                        <td class="px-6 py-4 text-gray-600">{{ s.host }}</td>
+                        <td class="px-6 py-4">
+                            {% if s.enabled %}
+                                <span class="text-xs px-2.5 py-1 rounded-full bg-green-100 text-green-700 font-medium">启用</span>
+                            {% else %}
+                                <span class="text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 font-medium">禁用</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-gray-500">{{ s.updated_at|date:"Y-m-d H:i:s" }}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex justify-end gap-2">
+                                <button type="button" class="js-test bg-white hover:bg-gray-50 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-bold border" data-site-id="{{ s.id }}">测试</button>
+                                <a href="{% url 'admin_node_edit' node_id=s.id %}" class="bg-white hover:bg-gray-50 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-bold border">编辑</a>
+                                <form method="post" action="{% url 'admin_node_toggle' node_id=s.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="bg-white hover:bg-gray-50 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-bold border">{% if s.enabled %}关闭{% else %}开启{% endif %}</button>
+                                </form>
+                                <a href="{% url 'admin_node_delete' node_id=s.id %}" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold">删除</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center text-gray-400">暂无配置，请先新增</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.js-test').forEach(function(btn) {
+        btn.addEventListener('click', async function() {
+            const siteId = btn.getAttribute('data-site-id');
+            btn.disabled = true;
+            btn.classList.add('opacity-80', 'cursor-wait');
+            try {
+                const resp = await fetch(`/admin/nodes/${encodeURIComponent(siteId)}/test`);
+                const data = await resp.json().catch(() => ({}));
+                if (!resp.ok || !data.ok) {
+                    await Swal.fire({
+                        title: '测试失败',
+                        text: data.error || '无法连通',
+                        icon: 'error',
+                        confirmButtonColor: '#2563eb'
+                    });
+                    return;
+                }
+                await Swal.fire({
+                    title: '测试成功',
+                    html: `HTTP ${data.status_code}，耗时 ${data.elapsed_ms} ms`,
+                    icon: 'success',
+                    confirmButtonColor: '#2563eb'
+                });
+            } catch (e) {
+                await Swal.fire({
+                    title: '测试失败',
+                    text: '网络错误',
+                    icon: 'error',
+                    confirmButtonColor: '#2563eb'
+                });
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('opacity-80', 'cursor-wait');
+            }
+        });
+    });
+</script>
+{% endblock %}

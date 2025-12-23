@@ -1,0 +1,58 @@
+{% extends 'admin/base.html' %}
+{% block title %}系统配置{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-12">
+    <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-sm border p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800">系统配置</h2>
+                <p class="text-sm text-gray-500 mt-1">配置系统各项参数</p>
+            </div>
+            <a href="{% url 'admin_system_configs' %}" class="text-sm text-gray-500 hover:text-blue-600">返回列表</a>
+        </div>
+
+        {% if error %}
+        <div class="mt-4 bg-red-50 border border-red-100 text-red-700 text-sm px-4 py-3 rounded-xl">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="post" class="mt-6 space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="block text-sm font-medium text-gray-700">配置键</label>
+                {% if is_edit %}
+                    <input name="key" value="{{ form.key.value|default:'' }}" readonly class="mt-1 w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50" />
+                {% else %}
+                    <select name="key" required class="mt-1 w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200">
+                        <option value="">请选择配置键</option>
+                        {% for key, label in form.fields.key.choices %}
+                            {% if key %}
+                                <option value="{{ key }}" {% if form.key.value == key %}selected{% endif %}>{{ label }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                {% endif %}
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">配置值</label>
+                <textarea name="value" rows="3" required class="mt-1 w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200">{{ form.value.value|default:'' }}</textarea>
+                <p class="mt-1 text-xs text-gray-500">根据配置键的类型填写相应的值（数字、布尔值、字符串等）</p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">描述（可选）</label>
+                <input name="description" value="{{ form.description.value|default:'' }}" placeholder="用于说明此配置的用途" class="mt-1 w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200" />
+            </div>
+
+            <div class="pt-2 flex gap-3">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold shadow">保存</button>
+                <a href="{% url 'admin_system_configs' %}" class="bg-white hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-xl font-bold border">取消</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

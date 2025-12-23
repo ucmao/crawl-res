@@ -1,0 +1,16 @@
+{% extends 'search/base.html' %}
+{% block title %}关于项目{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-16">
+    <h2 class="text-3xl font-bold mb-8">关于 Crawl-Res</h2>
+    <div class="prose prose-slate text-gray-600 space-y-6">
+        <p>Crawl-Res 是一个基于 <b>Django + Celery + Scrapy</b> 的开源资源检索项目。</p>
+        <div class="bg-amber-50 border-l-4 border-amber-400 p-6 rounded-r-xl">
+            <h4 class="text-amber-800 font-bold mb-2">法律免责</h4>
+            <p class="text-xs text-amber-700">1. 本项目不存储、不分发任何资源文件。<br>2. 检索结果均为第三方公开链接。<br>3. 请遵守相关著作权法，结果仅供学习研究使用。</p>
+        </div>
+        <p>联系我们：leoucmao@163.com</p>
+    </div>
+</div>
+{% endblock %}

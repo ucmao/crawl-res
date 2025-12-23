@@ -1,0 +1,55 @@
+{% extends 'admin/base.html' %}
+{% block title %}系统配置{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-12">
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800">系统配置（SystemConfig）</h2>
+            <p class="text-sm text-gray-500 mt-1">管理系统各项配置参数</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'admin_system_config_new' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-bold shadow">新增配置</a>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 text-gray-600">
+                    <tr>
+                        <th class="text-left px-6 py-4">配置键</th>
+                        <th class="text-left px-6 py-4">配置值</th>
+                        <th class="text-left px-6 py-4">描述</th>
+                        <th class="text-left px-6 py-4">更新时间</th>
+                        <th class="text-right px-6 py-4">操作</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y">
+                    {% for config in configs %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 font-mono text-gray-700">{{ config.key }}</td>
+                        <td class="px-6 py-4 text-gray-900">
+                            <div class="max-w-md truncate" title="{{ config.value }}">{{ config.value }}</div>
+                        </td>
+                        <td class="px-6 py-4 text-gray-600">{{ config.description|default:"-" }}</td>
+                        <td class="px-6 py-4 text-gray-500">{{ config.updated_at|date:"Y-m-d H:i:s" }}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex justify-end gap-2">
+                                <a href="{% url 'admin_system_config_edit' config_id=config.id %}" class="bg-white hover:bg-gray-50 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-bold border">编辑</a>
+                                <a href="{% url 'admin_system_config_delete' config_id=config.id %}" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold">删除</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center text-gray-400">暂无配置，请先新增</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

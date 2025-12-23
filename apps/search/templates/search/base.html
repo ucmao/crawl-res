@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crawl-Res | {% block title %}{% endblock %}</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+    <link rel="apple-touch-icon" href="{% static 'images/logo.png' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass-effect { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
+        .banner-bg {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)),
+                              url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop');
+            background-size: cover; background-position: center;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans">
+    <nav class="sticky top-0 z-50 glass-effect border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <a href="{% url 'index' %}" class="flex items-center space-x-2">
+                    <img src="{% static 'images/logo.png' %}" alt="Crawl-Res Logo" class="h-8 w-8 object-contain">
+                    <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">Crawl-Res</span>
+                </a>
+            </div>
+            <div class="hidden md:flex space-x-8 text-sm font-medium text-gray-600">
+                <a href="{% url 'index' %}" class="hover:text-blue-600 transition">首页</a>
+                <a href="{% url 'square' %}" class="hover:text-blue-600 transition">资源广场</a>
+                <a href="{% url 'status' %}" class="hover:text-blue-600 transition">引擎状态</a>
+                <a href="{% url 'about' %}" class="hover:text-blue-600 transition">关于项目</a>
+            </div>
+            <a href="https://github.com/ucmao/crawl-res" target="_blank" rel="noopener noreferrer" class="bg-blue-600 text-white px-4 py-2 rounded-full text-sm hover:bg-blue-700 transition shadow-md">GitHub</a>
+        </div>
+    </nav>
+
+    {% block content %}{% endblock %}
+
+    <footer class="bg-white border-t border-gray-200 mt-20 pt-16 pb-8 text-sm text-gray-500 text-center">
+        <p>&copy; 2025 Crawl-Res Open Source Project. 基于 Django & Celery 构建.</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,45 @@
+{% extends 'search/base.html' %}
+{% block title %}引擎健康度{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-12">
+    <div class="bg-slate-900 rounded-2xl shadow-2xl overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-800">
+            <h3 class="text-white font-bold">分布式爬虫节点响应状态 (Live)</h3>
+            <div class="text-slate-400 text-xs mt-1">站点总数: {{ total_sites }}，启用: {{ enabled_sites }}</div>
+        </div>
+        <table class="w-full text-left text-sm text-slate-300">
+            <thead class="bg-slate-800 text-slate-500 uppercase text-[10px]">
+                <tr>
+                    <th class="px-6 py-4">节点名称</th>
+                    <th class="px-6 py-4">抓取策略</th>
+                    <th class="px-6 py-4">当前延迟</th>
+                    <th class="px-6 py-4">状态</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800">
+                {% for s in sites %}
+                <tr>
+                    <td class="px-6 py-4 font-medium text-white">
+                        {% if s.host %}
+                            <a href="https://{{ s.host }}" target="_blank" rel="noopener noreferrer" class="hover:underline">{{ s.name }}</a>
+                        {% else %}
+                            {{ s.name }}
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 italic">
+                        {% if s.config.parse_mode %}{{ s.config.parse_mode|upper }}{% else %}HTML{% endif %}
+                        / {% if s.config.has_detail %}Detail{% else %}List{% endif %}
+                        / {% if s.config.method %}{{ s.config.method|upper }}{% else %}GET{% endif %}
+                    </td>
+                    <td class="px-6 py-4">{% if s.config.delay %}{{ s.config.delay }}s{% else %}-{% endif %}</td>
+                    <td class="px-6 py-4 {% if s.enabled %}text-green-400{% else %}text-slate-500{% endif %}">
+                        {% if s.enabled %}● Active{% else %}● Disabled{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

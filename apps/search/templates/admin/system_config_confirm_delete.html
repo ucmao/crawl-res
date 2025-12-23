@@ -1,0 +1,41 @@
+{% extends 'admin/base.html' %}
+{% block title %}删除系统配置{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-12">
+    <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-sm border p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-gray-800">确认删除</h2>
+            <a href="{% url 'admin_system_configs' %}" class="text-sm text-gray-500 hover:text-blue-600">返回列表</a>
+        </div>
+
+        <div class="bg-red-50 border border-red-100 rounded-xl p-4 mb-6">
+            <p class="text-red-700 text-sm font-medium">警告：删除此配置后，系统将使用默认值。确定要删除吗？</p>
+        </div>
+
+        <div class="space-y-3 mb-6">
+            <div>
+                <span class="text-sm font-medium text-gray-600">配置键：</span>
+                <span class="text-sm text-gray-900 font-mono">{{ config.key }}</span>
+            </div>
+            <div>
+                <span class="text-sm font-medium text-gray-600">配置值：</span>
+                <span class="text-sm text-gray-900">{{ config.value }}</span>
+            </div>
+            {% if config.description %}
+            <div>
+                <span class="text-sm font-medium text-gray-600">描述：</span>
+                <span class="text-sm text-gray-900">{{ config.description }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <form method="post" class="flex gap-3">
+            {% csrf_token %}
+            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-bold shadow">确认删除</button>
+            <a href="{% url 'admin_system_configs' %}" class="bg-white hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-xl font-bold border">取消</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

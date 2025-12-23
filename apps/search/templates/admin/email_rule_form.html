@@ -1,0 +1,56 @@
+{% extends 'admin/base.html' %}
+{% block title %}邮箱规则{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-12">
+    <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-sm border p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800">邮箱规则{% if is_edit %}编辑{% else %}新增{% endif %}</h2>
+                <p class="text-sm text-gray-500 mt-1">支持通配符 *；示例：<span class="font-mono">*@qq.com</span> / <span class="font-mono">*.163.com</span> / <span class="font-mono">l*ha@126.com</span></p>
+            </div>
+            <a href="{% url 'admin_email_rules' %}" class="text-sm text-gray-500 hover:text-blue-600">返回列表</a>
+        </div>
+
+        {% if error %}
+        <div class="mt-4 bg-red-50 border border-red-100 text-red-700 text-sm px-4 py-3 rounded-xl">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="post" class="mt-6 space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="block text-sm font-medium text-gray-700">类型</label>
+                <select name="list_type" class="mt-1 w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200" {% if is_edit %}disabled{% endif %}>
+                    <option value="1" {% if list_type == 1 %}selected{% endif %}>白名单</option>
+                    <option value="2" {% if list_type == 2 %}selected{% endif %}>黑名单</option>
+                </select>
+                {% if is_edit %}
+                <input type="hidden" name="list_type" value="{{ list_type }}" />
+                {% endif %}
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">规则</label>
+                <input name="rule" value="{{ form.rule.value|default:'' }}" required class="mt-1 w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200 font-mono" placeholder="*@qq.com" />
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">备注</label>
+                <input name="remark" value="{{ form.remark.value|default:'' }}" class="mt-1 w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200" placeholder="可选" />
+            </div>
+
+            <div class="flex items-center gap-3">
+                <input id="enabled" type="checkbox" name="enabled" {% if form.enabled.value %}checked{% endif %} class="w-4 h-4" />
+                <label for="enabled" class="text-sm text-gray-700">启用该规则</label>
+            </div>
+
+            <div class="pt-2 flex gap-3">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold shadow">保存</button>
+                <a href="{% url 'admin_email_rules' %}" class="bg-white hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-xl font-bold border">取消</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

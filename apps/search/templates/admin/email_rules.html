@@ -1,0 +1,176 @@
+{% extends 'admin/base.html' %}
+{% block title %}邮箱规则管理{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-8">
+    
+    <div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+            <h2 class="text-3xl font-extrabold text-gray-900">邮箱访问控制</h2>
+            <p class="text-gray-500 mt-2 flex items-center gap-2">
+                <span class="flex items-center gap-1 text-red-600 font-medium">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
+                    黑名单优先拦截
+                </span>
+                <span class="text-gray-300">|</span>
+                <span class="text-blue-600 font-medium">若存在白名单则必须命中</span>
+            </p>
+        </div>
+        <div class="flex gap-4">
+            <div class="bg-white px-4 py-2 rounded-lg border shadow-sm">
+                <div class="text-xs text-gray-400 uppercase">白名单</div>
+                <div class="text-xl font-bold text-blue-600">{{ allow_rules|length }} <span class="text-sm font-normal text-gray-400">条</span></div>
+            </div>
+            <div class="bg-white px-4 py-2 rounded-lg border shadow-sm">
+                <div class="text-xs text-gray-400 uppercase">黑名单</div>
+                <div class="text-xl font-bold text-red-600">{{ block_rules|length }} <span class="text-sm font-normal text-gray-400">条</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-blue-100 overflow-hidden mb-8">
+        <div class="px-6 py-4 bg-gradient-to-r from-blue-50 to-white border-b border-blue-100 flex items-center justify-between">
+            <h3 class="text-lg font-bold text-blue-900 flex items-center gap-2">
+                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                白名单（允许执行）
+            </h3>
+            <div class="flex gap-3">
+                <button onclick="document.getElementById('allow-bulk').classList.toggle('hidden')" class="text-blue-600 text-sm font-medium hover:bg-blue-50 px-3 py-1.5 rounded-lg transition">批量导入</button>
+                <a href="{% url 'admin_email_rule_new' list_type=1 %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm font-bold shadow-sm transition">单个新增</a>
+            </div>
+        </div>
+
+        <div id="allow-bulk" class="hidden p-6 bg-blue-50/50 border-b border-blue-100">
+            <form method="post" action="{% url 'admin_email_rules_bulk' list_type=1 %}" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {% csrf_token %}
+                <div class="md:col-span-2">
+                    <textarea name="rules" rows="3" class="w-full p-3 rounded-lg border border-blue-200 focus:ring-2 focus:ring-blue-400 font-mono text-sm" placeholder="支持通配符，一行一个，例如：*@google.com"></textarea>
+                </div>
+                <div class="flex flex-col justify-between">
+                    <input name="remark" class="w-full p-2 rounded-lg border border-blue-200 text-sm" placeholder="统一备注" />
+                    <label class="mt-2 flex items-center gap-2 text-sm text-gray-700">
+                        <input type="checkbox" name="enabled" checked class="w-4 h-4" />
+                        导入后启用
+                    </label>
+                    <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg text-sm font-bold mt-2">执行导入</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
+                    <tr>
+                        <th class="px-6 py-4">匹配规则</th>
+                        <th class="px-6 py-4">状态</th>
+                        <th class="px-6 py-4">备注</th>
+                        <th class="px-6 py-4 text-right">管理操作</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for r in allow_rules %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 font-mono text-gray-900">{{ r.rule }}</td>
+                        <td class="px-6 py-4">
+                            {% if r.enabled %}
+                                <span class="text-xs px-2.5 py-1 rounded-full bg-green-100 text-green-700 font-medium">启用</span>
+                            {% else %}
+                                <span class="text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 font-medium">禁用</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-gray-600">{{ r.remark }}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex justify-end gap-2">
+                                <a href="{% url 'admin_email_rule_edit' rule_id=r.id %}" class="bg-white hover:bg-gray-50 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-bold border">编辑</a>
+                                <form method="post" action="{% url 'admin_email_rule_toggle' rule_id=r.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="bg-white hover:bg-gray-50 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-bold border">{% if r.enabled %}关闭{% else %}开启{% endif %}</button>
+                                </form>
+                                <a href="{% url 'admin_email_rule_delete' rule_id=r.id %}" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold">删除</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-6 py-10 text-center text-gray-400">暂无规则</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-red-100 overflow-hidden">
+        <div class="px-6 py-4 bg-gradient-to-r from-red-50 to-white border-b border-red-100 flex items-center justify-between">
+            <h3 class="text-lg font-bold text-red-900 flex items-center gap-2">
+                <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+                黑名单（拦截执行）
+            </h3>
+            <div class="flex gap-3">
+                <button onclick="document.getElementById('block-bulk').classList.toggle('hidden')" class="text-red-600 text-sm font-medium hover:bg-red-50 px-3 py-1.5 rounded-lg transition">批量导入</button>
+                <a href="{% url 'admin_email_rule_new' list_type=2 %}" class="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-lg text-sm font-bold shadow-sm transition">单个新增</a>
+            </div>
+        </div>
+
+        <div id="block-bulk" class="hidden p-6 bg-red-50/50 border-b border-red-100">
+            <form method="post" action="{% url 'admin_email_rules_bulk' list_type=2 %}" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {% csrf_token %}
+                <div class="md:col-span-2">
+                    <textarea name="rules" rows="3" class="w-full p-3 rounded-lg border border-red-200 focus:ring-2 focus:ring-red-400 font-mono text-sm" placeholder="支持通配符，一行一个，例如：*@spam.com"></textarea>
+                </div>
+                <div class="flex flex-col justify-between">
+                    <input name="remark" class="w-full p-2 rounded-lg border border-red-200 text-sm" placeholder="统一备注" />
+                    <label class="mt-2 flex items-center gap-2 text-sm text-gray-700">
+                        <input type="checkbox" name="enabled" checked class="w-4 h-4" />
+                        导入后启用
+                    </label>
+                    <button type="submit" class="w-full bg-red-600 text-white py-2 rounded-lg text-sm font-bold mt-2">执行导入</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
+                    <tr>
+                        <th class="px-6 py-4">匹配规则</th>
+                        <th class="px-6 py-4">状态</th>
+                        <th class="px-6 py-4">备注</th>
+                        <th class="px-6 py-4 text-right">管理操作</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for r in block_rules %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 font-mono text-gray-900">{{ r.rule }}</td>
+                        <td class="px-6 py-4">
+                            {% if r.enabled %}
+                                <span class="text-xs px-2.5 py-1 rounded-full bg-green-100 text-green-700 font-medium">启用</span>
+                            {% else %}
+                                <span class="text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 font-medium">禁用</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-gray-600">{{ r.remark }}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex justify-end gap-2">
+                                <a href="{% url 'admin_email_rule_edit' rule_id=r.id %}" class="bg-white hover:bg-gray-50 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-bold border">编辑</a>
+                                <form method="post" action="{% url 'admin_email_rule_toggle' rule_id=r.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="bg-white hover:bg-gray-50 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-bold border">{% if r.enabled %}关闭{% else %}开启{% endif %}</button>
+                                </form>
+                                <a href="{% url 'admin_email_rule_delete' rule_id=r.id %}" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold">删除</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-6 py-10 text-center text-gray-400">暂无规则</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

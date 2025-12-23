@@ -1,0 +1,329 @@
+sites:
+  # --- 资源搜索引擎 (API 模式) ---
+  ptger:
+    name: "PTGer"
+    host: "files.ptger.cn"
+    start_url: "https://files.ptger.cn/api/files/vagueQuery?name={keyword}"
+    method: "GET"
+    parse_mode: "json"
+    has_detail: false
+    json_items_path: "data"
+    json_title_path: "source.name"
+    # 链接将由 extract_links 在整个 item 对象中自动识别
+    concurrent: 2
+    delay: 2.0
+
+  zy6789o:
+    name: "资源云"
+    host: "zy.6789o.com"
+    start_url: "https://zy.6789o.com/duanjuapi/search.php?text={keyword}"
+    method: "GET"
+    parse_mode: "json"
+    has_detail: false
+    json_items_path: "data"
+    json_title_path: "name"
+    concurrent: 2
+    delay: 1.5
+
+  ahfi:
+    name: "Ahfi短剧"
+    host: "api.ahfi.cn"
+    start_url: "https://api.ahfi.cn/api/short?text={keyword}"
+    method: "GET"
+    parse_mode: "json"
+    has_detail: false
+    json_items_path: "data"
+    json_title_path: "name"
+    concurrent: 2
+    delay: 1.5
+
+  lbbb:
+    name: "LBBB短剧"
+    host: "dj.lbbb.cc"
+    start_url: "https://dj.lbbb.cc/api.php?limit=20&text={keyword}"
+    method: "GET"
+    parse_mode: "json"
+    has_detail: false
+    json_items_path: "datas.data"
+    json_title_path: "name"
+    concurrent: 2
+    delay: 2.0
+
+  ycubbs:
+    name: "YCU影视"
+    host: "ai-img.ycubbs.cn"
+    start_url: "https://ai-img.ycubbs.cn/api/duanju/search?name={keyword}"
+    method: "GET"
+    parse_mode: "json"
+    has_detail: false
+    json_items_path: "data"
+    json_title_path: "name"
+    concurrent: 2
+    delay: 1.5
+
+  kuleu:
+    name: "酷乐鱼"
+    host: "api.kuleu.com"
+    start_url: "https://api.kuleu.com/api/action?text={keyword}"
+    method: "GET"
+    parse_mode: "json"
+    has_detail: false
+    json_items_path: "data"
+    json_title_path: "name"
+    concurrent: 2
+    delay: 1.5
+
+  gogopanso:
+    name: "GoGo盘搜"
+    host: "gogopanso.com"
+    start_url: "https://gogopanso.com:3642/search?keyword={keyword}"
+    method: "GET"
+    parse_mode: "json"
+    has_detail: false
+    json_items_path: "data"
+    json_title_path: "name"
+    concurrent: 2
+    delay: 2.5
+
+  funletu:
+    name: "趣乐兔"
+    host: "v.funletu.com"
+    start_url: "https://v.funletu.com/search"
+    method: "POST"
+    headers:
+      "Content-Type": "application/json"
+    payload:
+      style: "get"
+      datasrc: "search"
+      query:
+        courseid: 1
+        searchtext: "{keyword}"
+      page:
+        pageSize: 10
+        pageIndex: 1
+      order:
+        prop: "sort"
+        order: "desc"
+      message: "请求资源列表数据"
+    parse_mode: "json"
+    has_detail: false
+    json_items_path: "data"
+    json_title_path: "title"
+    concurrent: 2
+    delay: 3.0
+
+  so252035:
+    name: "252035搜索"
+    host: "so.252035.xyz"
+    start_url: "https://so.252035.xyz/api/search?kw={keyword}"
+    method: "GET"
+    parse_mode: "json"
+    has_detail: false
+    json_items_path: "data.merged_by_type.0" # 针对其合并类型的特殊处理
+    json_title_path: "note"
+    concurrent: 2
+    delay: 2.0
+
+  # --- 悠悠小站 (API 模式) ---
+  uuxiao:
+    name: "悠悠小站"
+    host: "uuxiao.cn"
+    start_url: "https://uuxiao.cn/api/user/search?name={keyword}"
+    method: "GET"
+    parse_mode: "json"
+    has_detail: false # 如果 API 直接返回了下载链接
+    json_items_path: "data"
+    json_title_path: "name"
+    # 由于该 API 返回的是列表，且你需要提取 URL
+    # 如果该站点需要进入详情页，请将 has_detail 改为 true 并配置 detail_rules
+    # 如果直接在 JSON 中包含链接，extract_links 会自动处理
+    concurrent: 2
+    delay: 3.0
+
+  # --- 即刻盘 (基于 API 模式) ---
+  jikepan:
+    name: "即刻盘"
+    host: "api.jikepan.xyz"
+    start_url: "https://api.jikepan.xyz/search"
+    method: "POST"
+    parse_mode: "json"
+    has_detail: false
+    kw_field: "name"
+    payload:
+      is_all: false
+      page: 1  # 显式补全 page 参数
+    headers:
+      "Content-Type": "application/json"
+      "Referer": "https://jikepan.xyz/"
+      "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    json_items_path: "list"
+    json_title_path: "name"
+    concurrent: 4
+    delay: 2.0
+
+  # --- 剧透社 ---
+  jutoushe:
+    name: "剧透社"
+    host: "1.star2.cn"
+    workflow:
+      - url: "https://{host}/"
+    start_url: "https://1.star2.cn/search/?keyword={keyword}"
+    method: "GET"
+    has_detail: true
+    list_rules:
+      item_nodes: "//ul[contains(@class,'erx-list')]/li[contains(@class,'item')]"
+      detail_link: ".//div[contains(@class,'a')]/a[contains(@class,'main')]/@href"
+    detail_rules:
+      fields:
+        title: "//h1/text()"
+        resource_url: "//div[contains(@class,'dlipp-cont-bd')]//a[contains(@class,'dlipp-dl-btn')]/@href | //div[contains(@class,'erx-content')]//text()"
+    concurrent: 4
+    delay: 2.0
+
+  # --- 飞快TV ---
+  feikuai:
+    name: "飞快TV"
+    host: "feikuai.tv"
+    start_url: "https://feikuai.tv/vodsearch/-------------.html?wd={keyword}"
+    method: "GET"
+    has_detail: true
+    list_rules:
+      item_nodes: "//a[string-length(normalize-space(@href)) > 10 and contains(normalize-space(@href), 'detail')]"
+      detail_link: "normalize-space(self::a/@href)"
+      next_page: "//a[contains(text(), '下一页')]/@href"
+    detail_rules:
+      fields:
+        title: "//h1[contains(@class,'title')]/text() | //h1/text()"
+        resource_url: "//div[contains(@class,'p-r')]//a/@href | //div[contains(@class,'vod-list')]//a/@href | //div[contains(@class,'content')]//text()"
+    concurrent: 4
+    delay: 2.0
+
+  # --- 电影云集 ---
+  dyyjmax:
+    name: "电影云集"
+    host: "bbs.dyyjmax.org"
+    start_url: "https://bbs.dyyjmax.org/api/discussions?filter%5Bq%5D={keyword}"
+    method: "GET"
+    parse_mode: "json"
+    # 新增路径配置
+    json_items_path: "data"           # 列表在哪
+    json_title_path: "attributes.title" # 标题在哪
+    json_url_path: "attributes.slug"    # 标识符在哪
+    has_detail: true
+    detail_rules:
+      fields:
+        title: "//h1/text() | //title/text()"
+        resource_url: "//div[contains(@class,'Post-body')]"
+    concurrent: 4
+    delay: 2.0
+
+  # --- 短剧狗 ---
+  duanjugou:
+    name: "短剧狗"
+    host: "duanjugou.top"
+    start_url: "https://duanjugou.top/search.php?q={keyword}"
+    method: "GET"
+    has_detail: true
+    list_rules:
+      item_nodes: "//main//ul[@class='erx-list']/li[contains(@class, 'item') and not(contains(@class, 'perch'))]"
+      detail_link: ".//a[@class='main']/@href"
+      next_page: "//div[contains(@class, 'erx-pagebar')]//a[contains(text(), '›')]/@href"
+    detail_rules:
+      fields:
+        title: "//h1//text()"
+        resource_url: "//div[contains(@class, 'erx-content')]"
+    concurrent: 8
+    delay: 1.0
+
+  # --- 阿里U盘 ---
+  aliupan:
+    name: "阿里U盘"
+    host: "www.aliupan.com"
+    start_url: "https://www.aliupan.com/?s={keyword}"
+    method: "GET"
+    has_detail: true
+    list_rules:
+      item_nodes: "//article[contains(@class, 'excerpt')]"
+      detail_link: ".//h2/a/@href"
+      next_page: "//div[@class='pagination']//li[@class='next-page']/a/@href"
+    detail_rules:
+      fields:
+        title: "//h1[contains(@class, 'article-title')]//text()"
+        resource_url: "//div[contains(@class, 'article-content')] | //meta[@name='description']/@content"
+    concurrent: 4
+    delay: 2.0
+
+  # --- 袋鼠短剧网 ---
+  daishu:
+    name: "袋鼠短剧网"
+    host: "www.daishuduanju.com"
+    start_url: "https://www.daishuduanju.com/?s={keyword}"
+    method: "GET"
+    has_detail: true
+    list_rules:
+      item_nodes: "//div[contains(@class, 'jxbox')]"
+      detail_link: ".//h5/a/@href"
+      next_page: "//a[contains(@class, 'next')]/@href"
+    detail_rules:
+      fields:
+        title: "//h1[contains(@class,'entry-title')]/text() | //h1[contains(@class,'post-title')]/text() | //title/text()"
+        resource_url: "//div[contains(@class, 'entry-content')] | //meta[@name='description']/@content"
+    concurrent: 4
+    delay: 2.0
+
+  # --- ASH搜剧助手 ---
+  ash:
+    name: "ASH搜剧助手"
+    host: "so.allsharehub.com"
+    start_url: "https://so.allsharehub.com/s/{keyword}.html"
+    method: "GET"
+    parse_mode: "regex_json"
+    extract_regex: "var jsonData = '(\\[.*?\\])';"
+    json_title: "name"
+    json_url: "url"
+    concurrent: 1
+    delay: 3.0
+
+  # --- A姐分享 ---
+  ajie:
+    name: "A姐分享"
+    host: "www.ahhhhfs.com"
+    start_url: "https://www.ahhhhfs.com/?cat=&s={keyword}"
+    method: "GET"
+    has_detail: true
+    list_rules:
+      item_nodes: "//main//article[contains(@class, 'post-item')]"
+      detail_link: ".//h2/a/@href"
+      next_page: "//a[contains(@class, 'next')]/@href"
+    detail_rules:
+      fields:
+        title: "//h1[contains(@class, 'entry-title')]/text() | //h1[contains(@class, 'post-title')]/text() | //title/text()"
+        resource_url: "//div[@id='pills-details'] | //div[contains(@class, 'entry-content')]"
+    concurrent: 4
+    delay: 2.0
+
+  # --- 磁力熊 ---
+  cilixiong:
+    name: "磁力熊"
+    host: "www.cilixiong.org"
+    start_url: "https://www.cilixiong.org/e/search/index.php"
+    method: "POST"
+    kw_field: "keyboard"
+    payload:
+      classid: "1,2"
+      show: "title"
+      tempid: "1"
+      Submit: "立即搜索"
+    # 2. 增加 workflow 模拟从首页进入，这会自动带上必要的 Cookie 和 Referer
+    workflow:
+      - url: "https://www.cilixiong.org/"
+    has_detail: true
+    list_rules:
+      item_nodes: "//div[contains(@class,'row-cols-2')]//div[contains(@class,'col')]"
+      detail_link: ".//a[contains(@href,'/drama/') or contains(@href,'/movie/')]/@href"
+    detail_rules:
+      fields:
+        title: "//h2[contains(@class,'h4')]/text() | //div[contains(@class,'mv_down')]/h2/text()"
+        resource_url: "//div[contains(@class, 'mv_down')]//a[contains(@href,'magnet:')]/@href"
+    concurrent: 4
+    delay: 2.0

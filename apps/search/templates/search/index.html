@@ -1,0 +1,144 @@
+{% extends 'search/base.html' %}
+{% block title %}全网资源异步检索{% endblock %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<header class="banner-bg min-h-[550px] flex items-center justify-center text-center text-white px-4">
+    <div class="max-w-4xl w-full">
+        <div class="inline-block px-4 py-1.5 mb-6 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-200 text-sm backdrop-blur-md">
+            🚀 核心引擎：基于分布式爬虫集群，挖掘全网公开资源
+        </div>
+
+        <h1 class="text-4xl md:text-6xl font-extrabold mb-8 tracking-tight leading-tight">
+            全网资源 <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">深度检索</span>
+        </h1>
+
+        <form id="searchForm" method="post" action="{% url 'index' %}" class="bg-white p-2.5 rounded-2xl shadow-2xl flex flex-col md:flex-row gap-2 mb-8">
+            {% csrf_token %}
+            <input type="text" name="keyword" placeholder="输入关键词 (如: 庆余年)" required class="flex-1 px-6 py-4 text-gray-800 focus:outline-none text-lg">
+            <input type="email" name="email" placeholder="通知邮箱" required class="md:w-1/3 px-6 py-4 text-gray-800 border-l border-gray-100 focus:outline-none text-lg">
+            <button type="submit" id="submitBtn" class="bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-xl font-bold transition-all transform hover:scale-[1.02] active:scale-95 shadow-lg text-white">
+                开始离线检索
+            </button>
+        </form>
+
+        <label class="inline-flex items-center gap-2 text-sm text-gray-200 mb-8 select-none">
+            <input type="checkbox" name="no_email" form="searchForm" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600">
+            不要发送邮件通知（仍需填写邮箱）
+        </label>
+
+        <div class="flex flex-wrap items-center justify-center gap-6 md:gap-12 text-sm md:text-base text-gray-200">
+            <span class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                分布集群爬取
+            </span>
+            <span class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                异步离线处理
+            </span>
+            <span class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                邮件精准送达
+            </span>
+        </div>
+
+        {% if error %}
+        <div class="mt-6 bg-red-600/90 text-white text-sm px-4 py-3 rounded-xl max-w-md mx-auto">
+            {{ error }}
+        </div>
+        {% endif %}
+    </div>
+</header>
+
+<div class="max-w-7xl mx-auto px-4 py-12">
+    <div class="flex items-center justify-between mb-6">
+        <h3 class="text-lg font-bold flex items-center text-gray-800">
+            <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span> 实时搜索广场动态
+        </h3>
+        <span class="text-gray-400 text-xs text-right">已累计处理分布式检索任务 12.8k+</span>
+    </div>
+    
+    <div class="bg-white rounded-2xl shadow-sm border divide-y overflow-hidden">
+        {% for task in recent_tasks %}
+        <div class="p-4 flex justify-between items-center hover:bg-gray-50 transition cursor-pointer js-task-row" data-task-id="{{ task.task_id.hex }}" data-related-task-id="{{ task.related_task_id.hex }}">
+            <span class="text-gray-600 text-sm text-left">
+                用户 <span class="font-mono text-gray-400">{{ task.masked_email }}</span> 
+                <span class="mx-2 text-gray-300">|</span> 
+                <span class="text-gray-500">{{ task.created_at|date:"Y-m-d H:i:s" }}</span>
+                正在检索 <b class="text-gray-900">{{ task.keyword }}</b>
+            </span>
+            <span class="text-xs px-2.5 py-1 font-medium rounded-full flex items-center gap-1.5
+                {% if task.status == 'SUCCESS' %}
+                    bg-green-100 text-green-700
+                {% else %}
+                    bg-blue-50 text-blue-600 animate-pulse
+                {% endif %}">
+                {% if task.status != 'SUCCESS' %}
+                    <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                {% endif %}
+                {{ task.get_status_display }}
+            </span>
+        </div>
+        {% empty %}
+        <div class="p-12 text-center text-gray-400 italic">
+            暂无实时动态，立即开始您的第一次全网深度检索
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    // 拦截表单提交：秒级切换场景
+    document.getElementById('searchForm').onsubmit = function() {
+        let btn = document.getElementById('submitBtn');
+        // 立即禁用按钮，防止重复提交
+        btn.disabled = true;
+        // 稍微改变样式（如变灰色），给用户一个物理反馈感
+        btn.classList.add('opacity-80', 'cursor-wait');
+        // 保持原来的文字，直接让浏览器执行 action 跳转
+        return true; 
+    };
+
+    // 搜索广场的逻辑保留，因为这里涉及异步校验和手动跳转
+    document.querySelectorAll('.js-task-row').forEach(function(row) {
+        row.addEventListener('click', async function() {
+            const taskId = row.getAttribute('data-task-id');
+            const relatedTaskId = row.getAttribute('data-related-task-id');
+            const { value: email } = await Swal.fire({
+                title: '验证邮箱后查看结果',
+                input: 'email',
+                inputLabel: '请输入提交任务时的邮箱地址',
+                inputPlaceholder: 'name@example.com',
+                showCancelButton: true,
+                confirmButtonText: '验证并查看',
+                cancelButtonText: '取消',
+                confirmButtonColor: '#2563eb',
+                inputValidator: (value) => {
+                    if (!value) return '请输入邮箱';
+                }
+            });
+
+            if (!email) return;
+
+            try {
+                const resp = await fetch(`{% url 'verify_task_email' %}?task_id=${encodeURIComponent(taskId)}&email=${encodeURIComponent(email)}`);
+                const data = await resp.json().catch(() => ({}));
+                if (!resp.ok || !data.ok) {
+                    await Swal.fire({
+                        title: '验证失败',
+                        text: '邮箱不匹配或任务不存在。',
+                        icon: 'error',
+                        confirmButtonColor: '#2563eb'
+                    });
+                    return;
+                }
+                const jumpId = data.related_task_id || relatedTaskId;
+                window.location.href = `{% url 'result' %}?related_task_id=${jumpId}`;
+            } catch (e) {
+                console.error("Verification failed", e);
+            }
+        });
+    });
+</script>
+{% endblock %}

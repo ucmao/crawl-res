@@ -1,0 +1,57 @@
+{% extends 'admin/base.html' %}
+{% block title %}站点配置{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-12">
+    <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-sm border p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800">站点配置</h2>
+                <p class="text-sm text-gray-500 mt-1">Key 作为唯一标识；config 为 JSON（用于 Scrapy 抓取策略）</p>
+            </div>
+            <a href="{% url 'admin_nodes' %}" class="text-sm text-gray-500 hover:text-blue-600">返回列表</a>
+        </div>
+
+        {% if error %}
+        <div class="mt-4 bg-red-50 border border-red-100 text-red-700 text-sm px-4 py-3 rounded-xl">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="post" class="mt-6 space-y-4">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Key</label>
+                    <input name="key" value="{{ form.key.value|default:'' }}" {% if key_locked %}readonly{% endif %} required class="mt-1 w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200 {% if key_locked %}bg-gray-50{% endif %}" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">名称</label>
+                    <input name="name" value="{{ form.name.value|default:'' }}" required class="mt-1 w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Host</label>
+                    <input name="host" value="{{ form.host.value|default:'' }}" class="mt-1 w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200" />
+                </div>
+                <div class="flex items-center gap-3 mt-6">
+                    <input id="enabled" type="checkbox" name="enabled" {% if form.enabled.value %}checked{% endif %} class="w-4 h-4" />
+                    <label for="enabled" class="text-sm text-gray-700">启用该配置</label>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Config(JSON)</label>
+                <textarea name="config" rows="10" class="mt-1 w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200 font-mono text-xs">{{ form.config.value|default:'{}' }}</textarea>
+            </div>
+
+            <div class="pt-2 flex gap-3">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold shadow">保存</button>
+                <a href="{% url 'admin_nodes' %}" class="bg-white hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-xl font-bold border">取消</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
