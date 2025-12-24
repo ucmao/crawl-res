@@ -176,7 +176,15 @@ python manage.py createsuperuser  # 创建管理员账号（用于登录管理�
 python manage.py init_system_configs
 python manage.py import_sites_yaml  # 从 config/sites.yaml 导入预设站点
 
+# 生产环境：收集静态文件（logo.png、favicon.ico 等）
+# 执行此命令后，所有静态文件会收集到 staticfiles/ 目录
+python manage.py collectstatic --noinput
 ```
+
+**静态文件说明**：
+- 开发环境（DEBUG=True）：Django 会自动提供静态文件
+- 生产环境（DEBUG=False）：需要运行 `collectstatic` 命令收集静态文件到 `staticfiles/` 目录
+- 如果使用 Nginx 等 Web 服务器，建议配置 Nginx 直接提供静态文件，性能更好
 
 ### 4. 启动指令
 
