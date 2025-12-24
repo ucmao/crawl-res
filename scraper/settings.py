@@ -205,3 +205,76 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Logging 配置
+# 确保 logs 目录存在
+LOGS_DIR = BASE_DIR / 'logs'
+LOGS_DIR.mkdir(exist_ok=True)
+
+# 日志级别：只保留 INFO 及以上级别的日志
+LOG_LEVEL = 'INFO'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+        'simple': {
+            'format': '{levelname} {asctime} {message}',
+            'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': LOG_LEVEL,
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOGS_DIR / 'crawl_res.log',
+            'maxBytes': 1024 * 1024 * 10,  # 10MB
+            'backupCount': 5,  # 保留5个备份文件
+            'formatter': 'verbose',
+            'encoding': 'utf-8',
+        },
+        'console': {
+            'level': LOG_LEVEL,
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    'root': {
+        'handlers': ['file', 'console'],
+        'level': LOG_LEVEL,
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file', 'console'],
+            'level': LOG_LEVEL,
+            'propagate': False,
+        },
+        'apps.search': {
+            'handlers': ['file', 'console'],
+            'level': LOG_LEVEL,
+            'propagate': False,
+        },
+        'celery': {
+            'handlers': ['file', 'console'],
+            'level': LOG_LEVEL,
+            'propagate': False,
+        },
+        'scrapy': {
+            'handlers': ['file'],  # 只使用 file handler，移除 console，避免重复输出
+            'level': LOG_LEVEL,
+            'propagate': False,
+        },
+        # 减少数据库查询日志的噪音（可选）
+        'django.db.backends': {
+            'handlers': ['file'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+    },
+}

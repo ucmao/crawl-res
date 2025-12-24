@@ -10,13 +10,11 @@ import django
 from django.db import close_old_connections
 from django.utils import timezone
 
-# 设置日志记录器
+# 设置日志记录器（级别由 Django LOGGING 配置控制，统一为 INFO）
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
-# 配置Scrapy日志
+# 配置Scrapy日志（级别由 Django LOGGING 配置控制，统一为 INFO）
 scrapy_logger = logging.getLogger('scrapy')
-scrapy_logger.setLevel(logging.DEBUG)
 
 # 确保Django环境已初始化
 def ensure_django_initialized():
@@ -190,7 +188,8 @@ settings.set('ITEM_PIPELINES', {
     'scraper.pipelines.DebugPipeline': 200,
     'scraper.pipelines.DjangoPipeline': 300,
 })
-settings.set('LOG_LEVEL', 'DEBUG')
+# 禁用 Scrapy 的原生日志输出，统一使用 Django 的日志系统
+settings.set('LOG_ENABLED', False)
 settings.set('FEED_EXPORT_ENCODING', 'utf-8')
 
 process = CrawlerProcess(settings)

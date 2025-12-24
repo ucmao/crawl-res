@@ -28,12 +28,14 @@ class UniversalSpider(scrapy.Spider):
         self.error_count = 0
         self.max_errors = 10  # 连续错误熔断阈值
 
-    def start_requests(self):
+    async def start(self):
         workflow = self.site_cfg.get('workflow', [])
         if workflow:
-            yield from self.run_workflow_step(0)
+            for request in self.run_workflow_step(0):
+                yield request
         else:
-            yield from self.execute_search()
+            for request in self.execute_search():
+                yield request
 
     def run_workflow_step(self, index):
         step = self.site_cfg['workflow'][index]
@@ -225,7 +227,7 @@ class UniversalSpider(scrapy.Spider):
             from .utils import extract_links as re_extract
             _, single_disk = re_extract(link)
 
-            self.logger.info(f"✨ 发现资源: {clean_title[:20]}... | 链接: {link[:30]}...")
+            # self.logger.info(f"✨ 发现资源: {clean_title[:20]}... | 链接: {link[:30]}...")
             
             yield {
                 'site_name': str(self.site_cfg.get('name')),

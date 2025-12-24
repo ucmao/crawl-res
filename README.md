@@ -148,6 +148,17 @@ EMAIL_HOST_PASSWORD=your_email_password
 EMAIL_FROM=your_email@163.com
 ```
 
+**验证服务状态**：
+
+```bash
+# 检查 PostgreSQL
+pg_isready -h localhost -p 5432
+
+# 检查 Redis
+redis-cli ping
+# 应该返回: PONG
+```
+
 
 ### 3. 部署步骤
 
@@ -178,25 +189,40 @@ python manage.py import_sites_yaml  # 从 config/sites.yaml 导入预设站点
 - ✅ PostgreSQL 数据库服务
 - ✅ Redis 服务（用于 Celery 任务队列和缓存）
 
+**开发模式（前台运行）**：
+
 ```bash
 # 启动 Web 服务 (终端1)
-python manage.py runserver 0.0.0.0:8000
+python manage.py runserver
 
 # 启动 Celery Worker (终端2)
 celery -A scraper.celery worker --loglevel=info
-
 ```
 
-**验证服务状态**：
+**生产模式（后台常驻）**：
 
 ```bash
-# 检查 PostgreSQL
-pg_isready -h localhost -p 5432
+# 启动 Web 服务（后台运行，所有日志统一保存到 logs/crawl_res.log）
+nohup python manage.py runserver > /dev/null 2>&1 &
 
-# 检查 Redis
-redis-cli ping
-# 应该返回: PONG
+# 启动 Celery Worker（后台运行，所有日志统一保存到 logs/crawl_res.log）
+nohup celery -A scraper.celery worker -l info > /dev/null 2>&1 &
 ```
+
+**查看日志**：
+
+```bash
+# 查看统一日志文件（包含 Django、Celery、应用等所有日志）
+tail -f logs/crawl_res.log
+
+# 查看最近的日志
+tail -n 100 logs/crawl_res.log
+
+# 搜索错误日志
+grep ERROR logs/crawl_res.log
+```
+
+> **提示**：日志配置已统一保存到 `logs/crawl_res.log`，包含 Django 框架、Celery 任务、应用代码等所有日志。日志文件会自动轮转，单个文件最大 10MB，保留 5 个备份文件。
 
 ---
 

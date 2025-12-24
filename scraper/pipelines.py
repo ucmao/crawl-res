@@ -1,11 +1,14 @@
 import json
 import asyncio
+import logging
 from apps.search.models import ResourceResult, SearchTask
 from asgiref.sync import sync_to_async
 
+logger = logging.getLogger(__name__)
+
 class DebugPipeline:
     def process_item(self, item, spider):
-        print(f"DebugPipeline: {json.dumps(item, ensure_ascii=False, indent=2)}")
+        # logger.debug(f"DebugPipeline: {json.dumps(item, ensure_ascii=False, indent=2)}")
         return item
 
 class DjangoPipeline:
@@ -23,5 +26,5 @@ class DjangoPipeline:
             )
             return item
         except Exception as e:
-            print(f"DjangoPipeline错误: {e}")
+            logger.error(f"DjangoPipeline错误: {e}", exc_info=True)
             return item
