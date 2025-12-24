@@ -82,16 +82,16 @@ Web 前端 (提交关键词)
 
 | 站点 Key | 站点名称 | 状态 | 站点 Key | 站点名称 | 状态 |
 | --- | --- | --- | --- | --- | --- |
-| **ptger** | PTGer | ☑️ | **zy6789o** | 资源云 | ☑️ |
-| **ahfi** | Ahfi短剧 | ☑️ | **lbbb** | LBBB短剧 | ☑️ |
-| **ycubbs** | YCU影视 | ☑️ | **kuleu** | 酷乐鱼 | ☑️ |
-| **gogopanso** | GoGo盘搜 | ☑️ | **funletu** | 趣乐兔 | ☑️ |
-| **so252035** | 252035搜索 | ☑️ | **uuxiao** | 悠悠小站 | ☑️ |
-| **jikepan** | 即刻盘 | ☑️ | **jutoushe** | 剧透社 | ☑️ |
-| **feikuai** | 飞快TV | ☑️ | **dyyjmax** | 电影云集 | ☑️ |
-| **duanjugou** | 短剧狗 | ☑️ | **aliupan** | 阿里U盘 | ☑️ |
-| **daishu** | 袋鼠短剧网 | ☑️ | **ash** | ASH搜剧助手 | ☑️ |
-| **ajie** | A姐分享 | ☑️ | **cilixiong** | 磁力熊 | ☑️ |
+| **ptger** | PTGer | ✅ | **zy6789o** | 资源云 | ✅ |
+| **ahfi** | Ahfi短剧 | ✅ | **lbbb** | LBBB短剧 | ✅ |
+| **ycubbs** | YCU影视 | ✅ | **kuleu** | 酷乐鱼 | ✅ |
+| **gogopanso** | GoGo盘搜 | ✅ | **funletu** | 趣乐兔 | ✅ |
+| **so252035** | 252035搜索 | ✅ | **uuxiao** | 悠悠小站 | ✅ |
+| **jikepan** | 即刻盘 | ✅ | **jutoushe** | 剧透社 | ✅ |
+| **feikuai** | 飞快TV | ✅ | **dyyjmax** | 电影云集 | ✅ |
+| **duanjugou** | 短剧狗 | ✅ | **aliupan** | 阿里U盘 | ✅ |
+| **daishu** | 袋鼠短剧网 | ✅ | **ash** | ASH搜剧助手 | ✅ |
+| **ajie** | A姐分享 | ✅ | **cilixiong** | 磁力熊 | ✅ |
 
 > **提示**：以上仅为部分展示，另有 30+ 站点正陆续适配中。
 
@@ -107,7 +107,7 @@ Web 前端 (提交关键词)
 
 ### 1. 环境准备
 
-* **Python**: 3.8+ | **PostgreSQL**: 12+ | **Redis**: 3.0+（推荐 5.0+）缓存与消息中间件
+* **Python**: 3.8+ | **PostgreSQL**: 12+ | **Redis**: 5.0+缓存与消息中间件
 
 ### 2. 环境变量配置
 
@@ -130,14 +130,9 @@ CACHE_URL=redis://localhost:6379/1
 # REDIS_URL=redis://localhost:6379/0  # 可选，用于限流功能
 
 # 站点配置
-# SITE_BASE_URL 用于：1) 邮件中的链接生成  2) 自动配置 ALLOWED_HOSTS 和 CSRF_TRUSTED_ORIGINS
+# SITE_BASE_URL 用于：1.邮件中的链接生成  2.自动配置 ALLOWED_HOSTS 和 CSRF_TRUSTED_ORIGINS
 # 如果使用 Nginx 反向代理，请配置为对外访问的域名（标准端口可不写端口号）
-# 例如：http://your-domain.com 或 http://your-domain.com:5008
 SITE_BASE_URL=http://your-domain:5008
-
-# CSRF 可信来源（可选，通常会自动从 SITE_BASE_URL 提取）
-# 如果需要多个域名，用逗号分隔，例如：http://example.com,https://www.example.com
-# CSRF_TRUSTED_ORIGINS=http://your-domain.com,https://your-domain.com
 
 # 邮件配置（假设是163邮箱，用于发送通知邮件）
 EMAIL_HOST=smtp.163.com
@@ -186,8 +181,8 @@ python manage.py import_sites_yaml  # 从 config/sites.yaml 导入预设站点
 ### 4. 启动指令
 
 **重要提示**：启动前请确保以下服务正在运行：
-- ✅ PostgreSQL 数据库服务
-- ✅ Redis 服务（用于 Celery 任务队列和缓存）
+- ☑️ PostgreSQL 数据库服务
+- ☑️ Redis 服务（用于 Celery 任务队列和缓存）
 
 **开发模式（前台运行）**：
 
@@ -209,20 +204,7 @@ nohup python manage.py runserver > /dev/null 2>&1 &
 nohup celery -A scraper.celery worker -l info > /dev/null 2>&1 &
 ```
 
-**查看日志**：
-
-```bash
-# 查看统一日志文件（包含 Django、Celery、应用等所有日志）
-tail -f logs/crawl_res.log
-
-# 查看最近的日志
-tail -n 100 logs/crawl_res.log
-
-# 搜索错误日志
-grep ERROR logs/crawl_res.log
-```
-
-> **提示**：日志配置已统一保存到 `logs/crawl_res.log`，包含 Django 框架、Celery 任务、应用代码等所有日志。日志文件会自动轮转，单个文件最大 10MB，保留 5 个备份文件。
+> **提示**：日志配置已统一保存到 `logs/crawl_res.log`，包含 Django 框架、Celery 任务、应用代码等所有日志。
 
 ---
 
