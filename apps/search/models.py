@@ -27,8 +27,13 @@ class SearchTask(models.Model):
         if '@' not in email:
             return email
         local, domain = email.split('@', 1)
-        prefix = local[:2]
-        return f"{prefix}{'*' * 6}@{domain}"
+        
+        # 如果用户名小于等于3位，保留第一位 + ******
+        if len(local) <= 3:
+            return f"{local[0]}******@{domain}"
+        
+        # 如果用户名大于3位，保留前2位和最后1位，中间用****替换
+        return f"{local[:2]}****{local[-1]}@{domain}"
 
     class Meta:
         ordering = ['-created_at']
