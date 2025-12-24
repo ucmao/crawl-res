@@ -207,7 +207,16 @@ class UniversalSpider(scrapy.Spider):
         # 1. 清洗标题
         clean_title = html.unescape(re.sub(r'<[^>]+>', '', str(title or "无标题"))).strip()
 
-        # 2. 链接清洗并去重（保持为列表）
+        # 2. 关键词过滤：如果标题中不包含关键词集合中的任何一个词，则过滤掉
+        keyword_list = re.split(r'[ ,，|;；\t\n]+', self.keyword)
+        keyword_set = {word.lower() for word in keyword_list if word.strip()}
+        if keyword_set:
+            # 检查标题中是否包含关键词集合中的任何一个词（不区分大小写）
+            title_lower = clean_title.lower()
+            if not any(kw in title_lower for kw in keyword_set):
+                return  # 标题中不包含任何关键词，过滤掉
+
+        # 3. 链接清洗并去重（保持为列表）
         if isinstance(links, str):
             raw_list = [l.strip() for l in links.split(',') if l.strip()]
         else:
@@ -215,7 +224,7 @@ class UniversalSpider(scrapy.Spider):
         
         unique_links = list(dict.fromkeys(raw_list))
 
-        # 3. 遍历链接，每一条链接 yield 一个独立的 item
+        # 4. 遍历链接，每一条链接 yield 一个独立的 item
         for link in unique_links:
             fingerprint = get_md5(link)
             if fingerprint in self.seen_resources:
