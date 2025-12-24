@@ -25,7 +25,7 @@ from .models import SearchTask, ResourceResult, SiteConfig, EmailRule, SystemCon
 from .tasks import crawl_task
 from .config_utils import (
     get_email_rate_limit_windows, get_keyword_cache_ttl, get_index_recent_tasks_count,
-    get_square_display_count, get_square_fetch_count, get_square_expire_hours,
+    get_square_display_count, get_square_expire_hours,
     get_result_expire_hours, get_email_config, get_crawl_timeout_seconds
 )
 
@@ -217,7 +217,10 @@ def square(request):
     expire_hours = get_square_expire_hours()
     expire_time = timezone.now() - timedelta(hours=expire_hours)
     
+    # 按日期范围查询
     qs = ResourceResult.objects.filter(created_at__gte=expire_time).order_by('-created_at')
+    
+    # 如果有搜索关键词，在日期范围基础上进一步过滤
     if q:
         qs = qs.filter(
             models.Q(title__icontains=q)
@@ -225,21 +228,12 @@ def square(request):
             | models.Q(site_source__icontains=q)
             | models.Q(url__icontains=q)
         )
-    # 获取更多资源以便去重后仍有足够数量
-    fetch_count = get_square_fetch_count()
+    
+    # 直接返回指定数量的资源（去重由数据库层面处理）
     display_count = get_square_display_count()
-    all_resources = list(qs[:fetch_count])
-    # 对URL进行去重，保留第一次出现的资源
-    seen_urls = set()
-    latest_resources = []
-    for res in all_resources:
-        url = res.url.strip() if res.url else ''
-        if url and url not in seen_urls:
-            seen_urls.add(url)
-            latest_resources.append(res)
-            if len(latest_resources) >= display_count:
-                break
-    return render(request, 'search/square.html', {'resources': latest_resources, 'q': q})
+    resources = list(qs[:display_count])
+    
+    return render(request, 'search/square.html', {'resources': resources, 'q': q})
 
 
 def status(request):
