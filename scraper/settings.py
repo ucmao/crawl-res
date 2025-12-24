@@ -123,15 +123,12 @@ WSGI_APPLICATION = 'scraper.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.mysql'),
+        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
         'NAME': os.getenv('DB_NAME', 'crawl_res'),
-        'USER': os.getenv('DB_USER', 'root'),
+        'USER': os.getenv('DB_USER', 'postgres'),
         'PASSWORD': os.getenv('DB_PASSWORD', ''),
         'HOST': os.getenv('DB_HOST', 'localhost'),
-        'PORT': os.getenv('DB_PORT', '3306'),
-        'OPTIONS': {
-            'charset': os.getenv('DB_CHARSET', 'utf8mb4'),
-        },
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 
@@ -164,7 +161,7 @@ TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False  # 禁用时区支持，直接使用本地时间（北京时间）存储和显示
 
 
 # Static files (CSS, JavaScript, Images)

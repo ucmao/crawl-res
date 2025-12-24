@@ -8,7 +8,7 @@
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/)
-[![MySQL](https://img.shields.io/badge/database-MySQL%205.7+-orange.svg)](https://www.mysql.com/)
+[![PostgreSQL](https://img.shields.io/badge/database-PostgreSQL%2012+-blue.svg)](https://www.postgresql.org/)
 [![Redis](https://img.shields.io/badge/middleware-Redis-red.svg)](https://redis.io/)
 [![Framework](https://img.shields.io/badge/framework-Django%20%7C%20Celery%20%7C%20Scrapy-purple.svg)](https://www.djangoproject.com/)
 [![Workflow](https://img.shields.io/badge/workflow-Async%20Crawl%20%7C%20Email%20Notify-brightgreen.svg)]()
@@ -70,7 +70,7 @@ Web 前端 (提交关键词)
 | **核心框架** | Django 4.2 |
 | **任务调度** | Celery + Redis |
 | **爬虫引擎** | Scrapy |
-| **数据存储** | MySQL / MariaDB |
+| **数据存储** | PostgreSQL 12+ |
 | **前端 UI** | Tailwind CSS + SweetAlert2 |
 
 ---
@@ -107,7 +107,7 @@ Web 前端 (提交关键词)
 
 ### 1. 环境准备
 
-* **Python**: 3.8+ | **MySQL**: 5.7+ | **Redis**: 缓存与消息中间件
+* **Python**: 3.8+ | **PostgreSQL**: 12+ | **Redis**: 缓存与消息中间件
 
 ### 2. 部署步骤
 
@@ -121,6 +121,7 @@ pip install -r requirements.txt
 
 # 数据库迁移与初始化
 python manage.py migrate
+python manage.py createsuperuser  # 创建管理员账号（用于登录管理后台）
 python manage.py init_system_configs
 python manage.py import_sites_yaml  # 从 config/sites.yaml 导入预设站点
 

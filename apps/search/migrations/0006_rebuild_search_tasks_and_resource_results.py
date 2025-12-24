@@ -14,15 +14,15 @@ class Migration(migrations.Migration):
                 "DROP TABLE IF EXISTS search_tasks;",
                 """
                 CREATE TABLE search_tasks (
-                    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                    task_id CHAR(32) NOT NULL,
-                    related_task_id CHAR(32) NOT NULL,
-                    is_cache BOOL NOT NULL DEFAULT 0,
+                    id BIGSERIAL PRIMARY KEY,
+                    task_id UUID NOT NULL,
+                    related_task_id UUID NOT NULL,
+                    is_cache BOOLEAN NOT NULL DEFAULT FALSE,
                     keyword VARCHAR(255) NOT NULL,
                     email VARCHAR(254) NOT NULL,
                     status VARCHAR(10) NOT NULL DEFAULT 'PENDING',
-                    expire_time DATETIME NULL,
-                    created_at DATETIME(6) NOT NULL
+                    expire_time TIMESTAMP NULL,
+                    created_at TIMESTAMP(6) NOT NULL
                 );
                 """,
                 "CREATE UNIQUE INDEX search_tasks_task_id_uniq ON search_tasks(task_id);",
@@ -31,13 +31,13 @@ class Migration(migrations.Migration):
                 "CREATE INDEX search_tasks_created_at_idx ON search_tasks(created_at);",
                 """
                 CREATE TABLE resource_results (
-                    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                    task_id CHAR(32) NOT NULL,
+                    id BIGSERIAL PRIMARY KEY,
+                    task_id UUID NOT NULL,
                     title VARCHAR(500) NOT NULL,
                     disk_type VARCHAR(50) NOT NULL,
-                    url LONGTEXT NOT NULL,
+                    url TEXT NOT NULL,
                     site_source VARCHAR(100) NOT NULL,
-                    created_at DATETIME(6) NOT NULL
+                    created_at TIMESTAMP(6) NOT NULL
                 );
                 """,
                 "CREATE INDEX resource_results_task_id_idx ON resource_results(task_id);",

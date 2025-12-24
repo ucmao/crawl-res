@@ -337,21 +337,21 @@ def admin_login(request):
     return render(request, 'admin/login.html', {'form': form, 'error': error})
 
 
-@login_required(login_url='/admin/login')
+@login_required(login_url='/admin/login/')
 def admin_logout(request):
     auth_logout(request)
     return redirect('admin_login')
 
 
-@login_required(login_url='/admin/login')
-@user_passes_test(_is_admin, login_url='/admin/login')
+@login_required(login_url='/admin/login/')
+@user_passes_test(_is_admin, login_url='/admin/login/')
 def admin_nodes(request):
     sites = SiteConfig.objects.all().order_by('key')
     return render(request, 'admin/nodes.html', {'sites': sites})
 
 
-@login_required(login_url='/admin/login')
-@user_passes_test(_is_admin, login_url='/admin/login')
+@login_required(login_url='/admin/login/')
+@user_passes_test(_is_admin, login_url='/admin/login/')
 def admin_email_rules(request):
     allow_rules = EmailRule.objects.filter(list_type=EmailRule.TYPE_ALLOW).order_by('-updated_at')
     block_rules = EmailRule.objects.filter(list_type=EmailRule.TYPE_BLOCK).order_by('-updated_at')
@@ -361,8 +361,8 @@ def admin_email_rules(request):
     })
 
 
-@login_required(login_url='/admin/login')
-@user_passes_test(_is_admin, login_url='/admin/login')
+@login_required(login_url='/admin/login/')
+@user_passes_test(_is_admin, login_url='/admin/login/')
 def admin_email_rule_new(request, list_type: int):
     error = None
     if request.method == 'POST':
@@ -380,8 +380,8 @@ def admin_email_rule_new(request, list_type: int):
     return render(request, 'admin/email_rule_form.html', {'form': form, 'error': error, 'is_edit': False, 'list_type': list_type})
 
 
-@login_required(login_url='/admin/login')
-@user_passes_test(_is_admin, login_url='/admin/login')
+@login_required(login_url='/admin/login/')
+@user_passes_test(_is_admin, login_url='/admin/login/')
 def admin_email_rule_edit(request, rule_id: int):
     obj = EmailRule.objects.filter(id=rule_id).first()
     if not obj:
@@ -402,8 +402,8 @@ def admin_email_rule_edit(request, rule_id: int):
     return render(request, 'admin/email_rule_form.html', {'form': form, 'error': error, 'is_edit': True, 'rule_obj': obj, 'list_type': obj.list_type})
 
 
-@login_required(login_url='/admin/login')
-@user_passes_test(_is_admin, login_url='/admin/login')
+@login_required(login_url='/admin/login/')
+@user_passes_test(_is_admin, login_url='/admin/login/')
 def admin_email_rule_delete(request, rule_id: int):
     obj = EmailRule.objects.filter(id=rule_id).first()
     if not obj:
@@ -415,8 +415,8 @@ def admin_email_rule_delete(request, rule_id: int):
     return render(request, 'admin/email_rule_confirm_delete.html', {'rule_obj': obj})
 
 
-@login_required(login_url='/admin/login')
-@user_passes_test(_is_admin, login_url='/admin/login')
+@login_required(login_url='/admin/login/')
+@user_passes_test(_is_admin, login_url='/admin/login/')
 def admin_email_rule_toggle(request, rule_id: int):
     if request.method != 'POST':
         return redirect('admin_email_rules')
@@ -428,8 +428,8 @@ def admin_email_rule_toggle(request, rule_id: int):
     return redirect('admin_email_rules')
 
 
-@login_required(login_url='/admin/login')
-@user_passes_test(_is_admin, login_url='/admin/login')
+@login_required(login_url='/admin/login/')
+@user_passes_test(_is_admin, login_url='/admin/login/')
 def admin_email_rules_bulk(request, list_type: int):
     if request.method != 'POST':
         return redirect('admin_email_rules')
@@ -458,8 +458,8 @@ def admin_email_rules_bulk(request, list_type: int):
     return redirect('admin_email_rules')
 
 
-@login_required(login_url='/admin/login')
-@user_passes_test(_is_admin, login_url='/admin/login')
+@login_required(login_url='/admin/login/')
+@user_passes_test(_is_admin, login_url='/admin/login/')
 def admin_node_new(request):
     error = None
     if request.method == 'POST':
@@ -478,8 +478,8 @@ def admin_node_new(request):
     return render(request, 'admin/node_form.html', {'form': form, 'error': error, 'key_locked': False})
 
 
-@login_required(login_url='/admin/login')
-@user_passes_test(_is_admin, login_url='/admin/login')
+@login_required(login_url='/admin/login/')
+@user_passes_test(_is_admin, login_url='/admin/login/')
 def admin_node_edit(request, node_id):
     site = SiteConfig.objects.filter(id=node_id).first()
     if not site:
@@ -506,8 +506,8 @@ def admin_node_edit(request, node_id):
     return render(request, 'admin/node_form.html', {'form': form, 'error': error, 'site': site, 'key_locked': True})
 
 
-@login_required(login_url='/admin/login')
-@user_passes_test(_is_admin, login_url='/admin/login')
+@login_required(login_url='/admin/login/')
+@user_passes_test(_is_admin, login_url='/admin/login/')
 def admin_node_delete(request, node_id):
     site = SiteConfig.objects.filter(id=node_id).first()
     if not site:
@@ -520,8 +520,8 @@ def admin_node_delete(request, node_id):
     return render(request, 'admin/node_confirm_delete.html', {'site': site})
 
 
-@login_required(login_url='/admin/login')
-@user_passes_test(_is_admin, login_url='/admin/login')
+@login_required(login_url='/admin/login/')
+@user_passes_test(_is_admin, login_url='/admin/login/')
 def admin_node_toggle(request, node_id):
     if request.method != 'POST':
         return redirect('admin_nodes')
@@ -533,8 +533,26 @@ def admin_node_toggle(request, node_id):
     return redirect('admin_nodes')
 
 
-@login_required(login_url='/admin/login')
-@user_passes_test(_is_admin, login_url='/admin/login')
+@login_required(login_url='/admin/login/')
+@user_passes_test(_is_admin, login_url='/admin/login/')
+def admin_nodes_enable_all(request):
+    if request.method != 'POST':
+        return redirect('admin_nodes')
+    SiteConfig.objects.all().update(enabled=True, updated_at=timezone.now())
+    return redirect('admin_nodes')
+
+
+@login_required(login_url='/admin/login/')
+@user_passes_test(_is_admin, login_url='/admin/login/')
+def admin_nodes_disable_all(request):
+    if request.method != 'POST':
+        return redirect('admin_nodes')
+    SiteConfig.objects.all().update(enabled=False, updated_at=timezone.now())
+    return redirect('admin_nodes')
+
+
+@login_required(login_url='/admin/login/')
+@user_passes_test(_is_admin, login_url='/admin/login/')
 def admin_node_test(request, node_id):
     site = SiteConfig.objects.filter(id=node_id).first()
     if not site:
@@ -560,16 +578,16 @@ def admin_node_test(request, node_id):
     return JsonResponse({'ok': True, 'status_code': status_code, 'elapsed_ms': elapsed_ms})
 
 
-@login_required(login_url='/admin/login')
-@user_passes_test(_is_admin, login_url='/admin/login')
+@login_required(login_url='/admin/login/')
+@user_passes_test(_is_admin, login_url='/admin/login/')
 def admin_system_configs(request):
     """系统配置列表页"""
     configs = SystemConfig.objects.all().order_by('key')
     return render(request, 'admin/system_configs.html', {'configs': configs})
 
 
-@login_required(login_url='/admin/login')
-@user_passes_test(_is_admin, login_url='/admin/login')
+@login_required(login_url='/admin/login/')
+@user_passes_test(_is_admin, login_url='/admin/login/')
 def admin_system_config_new(request):
     """新建系统配置"""
     error = None
@@ -584,8 +602,8 @@ def admin_system_config_new(request):
     return render(request, 'admin/system_config_form.html', {'form': form, 'error': error, 'is_edit': False})
 
 
-@login_required(login_url='/admin/login')
-@user_passes_test(_is_admin, login_url='/admin/login')
+@login_required(login_url='/admin/login/')
+@user_passes_test(_is_admin, login_url='/admin/login/')
 def admin_system_config_edit(request, config_id):
     """编辑系统配置"""
     config = SystemConfig.objects.filter(id=config_id).first()
@@ -604,8 +622,8 @@ def admin_system_config_edit(request, config_id):
     return render(request, 'admin/system_config_form.html', {'form': form, 'error': error, 'is_edit': True, 'config': config})
 
 
-@login_required(login_url='/admin/login')
-@user_passes_test(_is_admin, login_url='/admin/login')
+@login_required(login_url='/admin/login/')
+@user_passes_test(_is_admin, login_url='/admin/login/')
 def admin_system_config_delete(request, config_id):
     """删除系统配置"""
     config = SystemConfig.objects.filter(id=config_id).first()

@@ -44,13 +44,15 @@ def send_email_task(self, task_id):
             logger.info(f"用户选择不发送邮件: {task.email}, task_id={task_id}")
             return str(task_id)
 
-        submit_time = timezone.localtime(task.created_at).strftime('%Y-%m-%d %H:%M:%S')
-        expire_time = (
-            timezone.localtime(task.expire_time).strftime('%Y-%m-%d %H:%M:%S')
-            if task.expire_time
-            else ''
-        )
-        send_time = timezone.localtime(timezone.now()).strftime('%Y-%m-%d %H:%M:%S')
+        # 处理时间显示：直接使用本地时间（北京时间）
+        # USE_TZ=False 时，时间已经是本地时间，直接格式化
+        submit_time = task.created_at.strftime('%Y-%m-%d %H:%M:%S')
+        
+        expire_time_str = ''
+        if task.expire_time:
+            expire_time_str = task.expire_time.strftime('%Y-%m-%d %H:%M:%S')
+        
+        send_time = timezone.now().strftime('%Y-%m-%d %H:%M:%S')
         email_cfg = get_email_config()
         result_url = f"{email_cfg['site_base_url']}/result?related_task_id={task.related_task_id.hex}"
 
@@ -60,7 +62,7 @@ def send_email_task(self, task_id):
             f"你于 {submit_time} 在 Crawl-Res 提交的搜索词 {task.keyword} 已完成检索，本次搜索结果如下：\n"
             f"查看搜索结果：{result_url}\n"
             "\n重要提示\n"
-            f"1. 结果链接有效期为{expire_hours}小时，请在 {expire_time} 前访问查看，超时后链接将自动失效。\n"
+            f"1. 结果链接有效期为{expire_hours}小时，请在 {expire_time_str} 前访问查看，超时后链接将自动失效。\n"
             "2. 若链接无法打开，请检查网络状态或确认 task_id 是否正确。\n"
             "\n版权声明\n"
             "本项目是 GitHub 开源项目 Crawl-Res，旨在为用户提供公开网络资源的检索指引服务。\n"
@@ -86,7 +88,7 @@ def send_email_task(self, task_id):
         <div style=\"margin:18px 0;padding:14px 16px;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;\">
           <div style=\"font-weight:700;margin-bottom:8px;\">重要提示</div>
           <ol style=\"margin:0;padding-left:18px;\">
-            <li>结果链接有效期为 <strong>{expire_hours}小时</strong>，请在 <strong>{expire_time}</strong> 前访问查看，超时后链接将自动失效。</li>
+            <li>结果链接有效期为 <strong>{expire_hours}小时</strong>，请在 <strong>{expire_time_str}</strong> 前访问查看，超时后链接将自动失效。</li>
             <li>若链接无法打开，请检查网络状态或确认 task_id 是否正确。</li>
           </ol>
         </div>
