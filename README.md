@@ -107,9 +107,49 @@ Web 前端 (提交关键词)
 
 ### 1. 环境准备
 
-* **Python**: 3.8+ | **PostgreSQL**: 12+ | **Redis**: 缓存与消息中间件
+* **Python**: 3.8+ | **PostgreSQL**: 12+ | **Redis**: 3.0+（推荐 5.0+）缓存与消息中间件
 
-### 2. 部署步骤
+### 2. 环境变量配置
+
+项目通过 `.env` 文件配置环境变量，把项目根目录`.env.example` 重命名为 `.env` 文件：
+
+```bash
+# 数据库配置
+DB_ENGINE=django.db.backends.postgresql
+DB_NAME=crawl_res_db
+DB_USER=postgres
+DB_PASSWORD=your_password
+DB_HOST=localhost
+DB_PORT=5432
+
+# Redis 配置（Celery 和缓存）
+CELERY_BROKER_URL=redis://localhost:6379/0
+CELERY_RESULT_BACKEND=django-db
+CACHE_BACKEND=redis
+CACHE_URL=redis://localhost:6379/1
+# REDIS_URL=redis://localhost:6379/0  # 可选，用于限流功能
+
+# 站点配置
+# SITE_BASE_URL 用于：1) 邮件中的链接生成  2) 自动配置 ALLOWED_HOSTS 和 CSRF_TRUSTED_ORIGINS
+# 如果使用 Nginx 反向代理，请配置为对外访问的域名（标准端口可不写端口号）
+# 例如：http://your-domain.com 或 http://your-domain.com:5008
+SITE_BASE_URL=http://your-domain:5008
+
+# CSRF 可信来源（可选，通常会自动从 SITE_BASE_URL 提取）
+# 如果需要多个域名，用逗号分隔，例如：http://example.com,https://www.example.com
+# CSRF_TRUSTED_ORIGINS=http://your-domain.com,https://your-domain.com
+
+# 邮件配置（假设是163邮箱，用于发送通知邮件）
+EMAIL_HOST=smtp.163.com
+EMAIL_PORT=465
+EMAIL_USE_SSL=true
+EMAIL_HOST_USER=your_email@163.com
+EMAIL_HOST_PASSWORD=your_email_password
+EMAIL_FROM=your_email@163.com
+```
+
+
+### 3. 部署步骤
 
 ```bash
 # 获取源码
@@ -120,14 +160,23 @@ python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 
 # 数据库迁移与初始化
+# 注意：执行以下命令前，请确保 PostgreSQL 服务已启动
+# 如果 PostgreSQL 未启动，会提示连接错误
 python manage.py migrate
 python manage.py createsuperuser  # 创建管理员账号（用于登录管理后台）
+
+# 注意：执行以下命令前，请确保 Redis 服务已启动
+# 如果 Redis 未启动，会提示连接错误
 python manage.py init_system_configs
 python manage.py import_sites_yaml  # 从 config/sites.yaml 导入预设站点
 
 ```
 
-### 3. 启动指令
+### 4. 启动指令
+
+**重要提示**：启动前请确保以下服务正在运行：
+- ✅ PostgreSQL 数据库服务
+- ✅ Redis 服务（用于 Celery 任务队列和缓存）
 
 ```bash
 # 启动 Web 服务 (终端1)
@@ -136,6 +185,17 @@ python manage.py runserver 0.0.0.0:8000
 # 启动 Celery Worker (终端2)
 celery -A scraper.celery worker --loglevel=info
 
+```
+
+**验证服务状态**：
+
+```bash
+# 检查 PostgreSQL
+pg_isready -h localhost -p 5432
+
+# 检查 Redis
+redis-cli ping
+# 应该返回: PONG
 ```
 
 ---

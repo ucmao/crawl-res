@@ -16,9 +16,38 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-#@^-g!+@(9l&_^#5)#$#$#$#$#$#$#$#$#$#$#$#$'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True').lower() in ('1', 'true', 'yes', 'y')
 
-ALLOWED_HOSTS = ['*']
+# 从 SITE_BASE_URL 提取配置信息（用于 ALLOWED_HOSTS 和 CSRF_TRUSTED_ORIGINS）
+from urllib.parse import urlparse
+site_base_url = os.getenv('SITE_BASE_URL', 'http://127.0.0.1:8000')
+parsed_url = urlparse(site_base_url)
+
+# ALLOWED_HOSTS 配置
+# 从 SITE_BASE_URL 提取域名，或使用环境变量配置（提高安全性，防止 HTTP Host 头攻击）
+if DEBUG:
+    ALLOWED_HOSTS = ['*']  # 开发环境允许所有主机
+else:
+    # 生产环境：从 SITE_BASE_URL 提取域名
+    allowed_hosts = [parsed_url.hostname] if parsed_url.hostname else []
+    # 也可以通过环境变量额外指定（多个域名用逗号分隔）
+    extra_hosts = os.getenv('ALLOWED_HOSTS', '').split(',')
+    ALLOWED_HOSTS = list(filter(None, allowed_hosts + [h.strip() for h in extra_hosts]))
+    if not ALLOWED_HOSTS:
+        ALLOWED_HOSTS = ['*']  # 如果没有配置，回退到允许所有（不推荐）
+
+# CSRF 配置
+# 从 SITE_BASE_URL 配置可信来源（解决 CSRF 验证失败问题）
+# CSRF_TRUSTED_ORIGINS 需要完整的 URL（协议 + 域名 + 端口）
+if parsed_url.scheme and parsed_url.netloc:
+    # 构建完整的 origin URL（协议 + 域名 + 端口）
+    csrf_origin = f"{parsed_url.scheme}://{parsed_url.netloc}"
+    CSRF_TRUSTED_ORIGINS = [csrf_origin]
+    # 也可以通过环境变量额外指定（多个用逗号分隔，例如：http://example.com,https://www.example.com）
+    extra_origins = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
+    CSRF_TRUSTED_ORIGINS.extend([o.strip() for o in extra_origins if o.strip()])
+else:
+    CSRF_TRUSTED_ORIGINS = []
 
 
 # Application definition
