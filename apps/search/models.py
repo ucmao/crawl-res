@@ -1,5 +1,6 @@
 from django.db import models
 import uuid
+import json
 
 
 class SearchTask(models.Model):
@@ -52,13 +53,48 @@ class SiteConfig(models.Model):
     name = models.CharField(max_length=200)
     host = models.CharField(max_length=255, blank=True, default='')
     enabled = models.BooleanField(default=True, db_index=True)
-    config = models.JSONField(default=dict)
+    # 使用 TextField 存储 JSON 字符串，兼容 MySQL 5.7
+    _config_json = models.TextField(default='{}', db_column='config')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = 'site_configs'
         ordering = ['key']
+
+    @property
+    def config(self):
+        """将存储的 JSON 字符串转换为字典"""
+        try:
+            return json.loads(self._config_json) if self._config_json else {}
+        except (json.JSONDecodeError, TypeError):
+            return {}
+
+    @config.setter
+    def config(self, value):
+        """将字典转换为 JSON 字符串存储"""
+        if value is None:
+            self._config_json = '{}'
+        elif isinstance(value, dict):
+            self._config_json = json.dumps(value, ensure_ascii=False)
+        else:
+            # 如果传入的是字符串，尝试解析
+            try:
+                json.loads(str(value))
+                self._config_json = str(value)
+            except (json.JSONDecodeError, TypeError):
+                self._config_json = '{}'
+
+    def save(self, *args, **kwargs):
+        """保存前确保 _config_json 是有效的 JSON 字符串"""
+        if not self._config_json:
+            self._config_json = '{}'
+        # 验证 JSON 格式
+        try:
+            json.loads(self._config_json)
+        except (json.JSONDecodeError, TypeError):
+            self._config_json = '{}'
+        super().save(*args, **kwargs)
 
 
 class CrawlerNode(models.Model):
